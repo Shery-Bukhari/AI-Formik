@@ -43,34 +43,24 @@ coverage/
   },
   {
     path: "package.json",
-    content: JSON.stringify(
-      {
-        name: "taskmanager-pro",
-        version: "1.2.3",
-        description: "A modern task management application",
-        main: "src/index.js",
-        scripts: {
-          start: "node src/index.js",
-          test: "jest",
-          build: "webpack --mode production",
-          dev: "webpack serve --mode development",
-        },
-        dependencies: {
-          express: "^4.18.2",
-          mongoose: "^7.0.3",
-          jsonwebtoken: "^9.0.0",
-        },
-        devDependencies: {
-          jest: "^29.5.0",
-          webpack: "^5.76.0",
-        },
-        keywords: ["task", "management", "productivity"],
-        author: "Developer",
-        license: "MIT",
-      },
-      null,
-      2
-    ),
+    content: `{
+  "name": "taskmanager-pro",
+  "version": "1.2.3",
+  "description": "A modern task management application",
+  "main": "generateCommits.js",
+  "scripts": {
+    "start": "node generateCommits.js",
+    "test": "echo \\"No tests specified\\" && exit 0"
+  },
+  "dependencies": {
+    "moment": "^2.29.4",
+    "simple-git": "^3.19.1",
+    "jsonfile": "^6.1.0"
+  },
+  "keywords": ["task", "management", "productivity"],
+  "author": "Developer",
+  "license": "MIT"
+}`,
   },
   {
     path: "public/index.html",
@@ -525,48 +515,53 @@ module.exports = {
   },
 ];
 
-// Realistic commit messages
+// Realistic commit messages with types
 const commitMessages = [
-  "Initial project setup",
-  "Add basic server configuration",
-  "Implement user authentication",
-  "Create task model and routes",
-  "Add frontend components",
-  "Fix authentication middleware",
-  "Update database configuration",
-  "Add input validation",
-  "Implement task filtering",
-  "Fix CSS styling issues",
-  "Add error handling",
-  "Update package dependencies",
-  "Improve API response format",
-  "Add unit tests",
-  "Fix memory leak in routes",
-  "Optimize database queries",
-  "Add responsive design",
-  "Update documentation",
-  "Fix security vulnerability",
-  "Implement search functionality",
-  "Add pagination support",
-  "Fix date formatting bug",
-  "Update webpack configuration",
-  "Add loading animations",
-  "Refactor authentication logic",
-  "Fix CORS issues",
-  "Add environment variables",
-  "Implement user profile",
-  "Fix task deletion bug",
-  "Add data validation",
-  "Update README with examples",
-  "Optimize bundle size",
-  "Fix mobile responsiveness",
-  "Add database migrations",
-  "Implement rate limiting",
-  "Fix timezone handling",
-  "Add keyboard shortcuts",
-  "Update test coverage",
-  "Fix production build",
-  "Add performance monitoring",
+  { message: "Initial project setup", type: "feature" },
+  { message: "Add basic server configuration", type: "feature" },
+  { message: "Implement user authentication", type: "feature" },
+  { message: "Create task model and routes", type: "feature" },
+  { message: "Add frontend components", type: "feature" },
+  { message: "Fix authentication middleware", type: "fix" },
+  { message: "Update database configuration", type: "update" },
+  { message: "Add input validation", type: "feature" },
+  { message: "Implement task filtering", type: "feature" },
+  { message: "Fix CSS styling issues", type: "fix" },
+  { message: "Add error handling", type: "feature" },
+  { message: "Update package dependencies", type: "update" },
+  { message: "Improve API response format", type: "refactor" },
+  { message: "Add unit tests", type: "feature" },
+  { message: "Fix memory leak in routes", type: "fix" },
+  { message: "Optimize database queries", type: "refactor" },
+  { message: "Add responsive design", type: "feature" },
+  { message: "Update documentation", type: "update" },
+  { message: "Fix security vulnerability", type: "fix" },
+  { message: "Implement search functionality", type: "feature" },
+  { message: "Add pagination support", type: "feature" },
+  { message: "Fix date formatting bug", type: "fix" },
+  { message: "Update webpack configuration", type: "update" },
+  { message: "Add loading animations", type: "feature" },
+  { message: "Refactor authentication logic", type: "refactor" },
+  { message: "Fix CORS issues", type: "fix" },
+  { message: "Add environment variables", type: "feature" },
+  { message: "Implement user profile", type: "feature" },
+  { message: "Fix task deletion bug", type: "fix" },
+  { message: "Add data validation", type: "feature" },
+  { message: "Update README with examples", type: "update" },
+  { message: "Optimize bundle size", type: "refactor" },
+  { message: "Fix mobile responsiveness", type: "fix" },
+  { message: "Add database migrations", type: "feature" },
+  { message: "Implement rate limiting", type: "feature" },
+  { message: "Fix timezone handling", type: "fix" },
+  { message: "Add keyboard shortcuts", type: "feature" },
+  { message: "Update test coverage", type: "update" },
+  { message: "Fix production build", type: "fix" },
+  { message: "Add performance monitoring", type: "feature" },
+  { message: "Refactor utility functions", type: "refactor" },
+  { message: "Update UI components", type: "update" },
+  { message: "Fix async/await patterns", type: "fix" },
+  { message: "Add code comments", type: "update" },
+  { message: "Implement caching layer", type: "feature" },
 ];
 
 function getRandomInt(min, max) {
@@ -574,7 +569,8 @@ function getRandomInt(min, max) {
 }
 
 function getRandomCommitMessage() {
-  return commitMessages[getRandomInt(0, commitMessages.length - 1)];
+  const commit = commitMessages[getRandomInt(0, commitMessages.length - 1)];
+  return commit;
 }
 
 function shouldSkipWeekend(date, skipWeekends = true) {
@@ -591,6 +587,78 @@ function getValidDate(year, month, day) {
   }
   return date;
 }
+
+// MISSING FUNCTION - This was the cause of the error
+const makeRealisticChanges = (filePath, changeType) => {
+  try {
+    if (!fs.existsSync(filePath)) {
+      console.warn(`⚠️  File ${filePath} does not exist, skipping...`);
+      return false;
+    }
+
+    const currentContent = fs.readFileSync(filePath, "utf8");
+    const timestamp = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    let newContent = currentContent;
+
+    // Make realistic changes based on commit type and file type
+    switch (changeType) {
+      case "feature":
+        if (filePath.endsWith(".js")) {
+          newContent += `\\n// Feature added: ${timestamp}`;
+          // Simulate adding a new function or feature
+          if (Math.random() > 0.5) {
+            newContent += `\\n/* New feature implementation */`;
+          }
+        } else if (filePath.endsWith(".md")) {
+          newContent += `\\n\\n## Update ${timestamp}\\nAdded new functionality.`;
+        } else if (filePath.endsWith(".css")) {
+          newContent += `\\n/* New styles added: ${timestamp} */`;
+        }
+        break;
+
+      case "fix":
+        if (filePath.endsWith(".js")) {
+          newContent += `\\n// Bug fix: ${timestamp}`;
+        } else if (filePath.endsWith(".md")) {
+          newContent += `\\n\\n<!-- Fixed: ${timestamp} -->`;
+        } else if (filePath.endsWith(".css")) {
+          newContent += `\\n/* Bug fix: ${timestamp} */`;
+        }
+        break;
+
+      case "refactor":
+        if (filePath.endsWith(".js")) {
+          newContent += `\\n// Refactored: ${timestamp}`;
+        } else if (filePath.endsWith(".md")) {
+          newContent += `\\n\\n### Refactoring - ${timestamp}`;
+        }
+        break;
+
+      case "update":
+      default:
+        if (filePath.endsWith(".js")) {
+          newContent += `\\n// Updated: ${timestamp}`;
+        } else if (filePath.endsWith(".md")) {
+          newContent += `\\n\\n<!-- Updated: ${timestamp} -->`;
+        } else if (filePath.endsWith(".css")) {
+          newContent += `\\n/* Updated: ${timestamp} */`;
+        } else if (filePath.endsWith(".html")) {
+          newContent += `\\n<!-- Updated: ${timestamp} -->`;
+        } else {
+          newContent += `\\n# Updated: ${timestamp}`;
+        }
+        break;
+    }
+
+    // Write the updated content
+    fs.writeFileSync(filePath, newContent);
+    return true;
+  } catch (error) {
+    console.warn(`⚠️  Could not modify ${filePath}:`, error.message);
+    return false;
+  }
+};
 
 const createDirectories = () => {
   const directories = [
@@ -652,31 +720,6 @@ const initializeRepo = async () => {
     return true;
   } catch (error) {
     console.error("❌ Git initialization failed:", error.message);
-    return false;
-  }
-};
-
-const modifyFileContent = (filePath) => {
-  try {
-    const currentContent = fs.readFileSync(filePath, "utf8");
-    const timestamp = moment().format("YYYY-MM-DD HH:mm:ss");
-
-    // Add a realistic comment based on file type
-    if (filePath.endsWith(".js")) {
-      fs.appendFileSync(filePath, `\\n// Updated: ${timestamp}`);
-    } else if (filePath.endsWith(".md")) {
-      fs.appendFileSync(filePath, `\\n\\n<!-- Updated: ${timestamp} -->`);
-    } else if (filePath.endsWith(".css")) {
-      fs.appendFileSync(filePath, `\\n/* Updated: ${timestamp} */`);
-    } else if (filePath.endsWith(".html")) {
-      fs.appendFileSync(filePath, `\\n<!-- Updated: ${timestamp} -->`);
-    } else {
-      fs.appendFileSync(filePath, `\\n# Updated: ${timestamp}`);
-    }
-
-    return true;
-  } catch (error) {
-    console.warn(`⚠️  Could not modify ${filePath}:`, error.message);
     return false;
   }
 };
@@ -747,8 +790,9 @@ const makeCommits = async ({
         const commitMessage = getRandomCommitMessage();
 
         if (dryRun) {
+          const commitInfo = getRandomCommitMessage();
           console.log(
-            `[DRY RUN] Would commit: "${commitMessage}" on ${formattedDate}`
+            `[DRY RUN] Would commit: "${commitInfo.message}" on ${formattedDate}`
           );
           monthlyCommits++;
           totalCommits++;
@@ -756,10 +800,14 @@ const makeCommits = async ({
         }
 
         try {
-          // Randomly select and modify a file
+          // Randomly select and modify a file with realistic changes
           const targetFile =
             projectFiles[getRandomInt(0, projectFiles.length - 1)];
-          const fileModified = modifyFileContent(targetFile.path);
+          const commitInfo = getRandomCommitMessage();
+          const fileModified = makeRealisticChanges(
+            targetFile.path,
+            commitInfo.type
+          );
 
           if (fileModified) {
             // Update data.json for commit tracking
@@ -767,16 +815,19 @@ const makeCommits = async ({
               date: formattedDate,
               commit: totalCommits + 1,
               file: targetFile.path,
+              type: commitInfo.type,
             };
             jsonfile.writeFileSync(FILE_PATH, data);
 
             await git.add("./*");
-            await git.commit(commitMessage, undefined, {
+            await git.commit(commitInfo.message, undefined, {
               "--date": formattedDate,
             });
 
             console.log(
-              `✅ [${totalCommits + 1}] ${commitMessage} - ${formattedDate}`
+              `✅ [${totalCommits + 1}] ${
+                commitInfo.message
+              } - ${formattedDate}`
             );
             monthlyCommits++;
             totalCommits++;
@@ -817,6 +868,26 @@ module.exports = { makeCommits, createFiles };
 
 // Run if called directly
 if (require.main === module) {
+  // Check if required dependencies are installed
+  const requiredPackages = ["moment", "simple-git", "jsonfile"];
+  const missingPackages = [];
+
+  for (const pkg of requiredPackages) {
+    try {
+      require.resolve(pkg);
+    } catch (error) {
+      missingPackages.push(pkg);
+    }
+  }
+
+  if (missingPackages.length > 0) {
+    console.error("❌ Missing required packages:", missingPackages.join(", "));
+    console.log(
+      "📦 Install them with: npm install " + missingPackages.join(" ")
+    );
+    process.exit(1);
+  }
+
   const config = {
     years: 4,
     maxCommitsPerMonth: 6,
