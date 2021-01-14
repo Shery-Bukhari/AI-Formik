@@ -1,0 +1,45 @@
+const request = require('supertest');
+const app = require('../src/index');
+const User = require('../src/models/User');
+
+describe('Auth Routes', () => {
+    beforeEach(async () => {
+        await User.deleteMany({});
+    });
+
+    test('Should register a new user', async () => {
+        const userData = {
+            username: 'testuser',
+            email: 'test@example.com',
+            password: 'password123'
+        };
+
+        const response = await request(app)
+            .post('/api/auth/register')
+            .send(userData)
+            .expect(201);
+
+        expect(response.body.user.username).toBe(userData.username);
+        expect(response.body.token).toBeDefined();
+    });
+
+    test('Should login existing user', async () => {
+        const user = new User({
+            username: 'testuser',
+            email: 'test@example.com',
+            password: 'password123'
+        });
+        await user.save();
+
+        const response = await request(app)
+            .post('/api/auth/login')
+            .send({
+                email: 'test@example.com',
+                password: 'password123'
+            })
+            .expect(200);
+
+        expect(response.body.token).toBeDefined();
+        expect(response.body.user.email).toBe('test@example.com');
+    });
+});
