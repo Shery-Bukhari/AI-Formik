@@ -702,12 +702,30 @@ const createFiles = () => {
   console.log(`✅ Created ${createdCount} files`);
 };
 
+async function setupGitConfig() {
+  try {
+    // Set basic git config if not already set
+    await git.addConfig("user.name", "GitHub User", false, "global");
+    await git.addConfig("user.email", "user@example.com", false, "global");
+    console.log("🔧 Git config set");
+  } catch (error) {
+    console.warn("⚠️ Could not set git config:", error.message);
+  }
+}
+
 const initializeRepo = async () => {
   try {
     const isRepo = await git.checkIsRepo();
     if (!isRepo) {
       await git.init();
       console.log("🔧 Git repository initialized");
+      await setupGitConfig();
+
+      // Create initial commit
+      createFiles(); // Ensure all files are created
+      await git.add("./*");
+      await git.commit("Initial commit");
+      console.log("✅ Created initial commit");
     }
 
     // Check if remote exists
@@ -742,8 +760,6 @@ const makeCommits = async ({
   if (!dryRun) {
     const repoReady = await initializeRepo();
     if (!repoReady) return;
-
-    createFiles();
   }
 
   const now = moment();
@@ -849,7 +865,7 @@ const makeCommits = async ({
       const remotes = await git.getRemotes(true);
       if (remotes.length > 0) {
         console.log("📤 Pushing to remote repository...");
-        await git.push();
+        await git.push(["-u", "origin", "main"]);
         console.log("🎉 All commits successfully pushed to GitHub!");
       } else {
         console.log("⚠️  No remote configured. Add remote and push manually:");
@@ -858,7 +874,7 @@ const makeCommits = async ({
       }
     } catch (error) {
       console.error("❌ Push failed:", error.message);
-      console.log("💡 You can push manually with: git push");
+      console.log("💡 You can push manually with: git push -u origin main");
     }
   }
 };
