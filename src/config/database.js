@@ -10,4 +10,4 @@ const connectDB = async () => {
     }
 };
 
-module.exports = { connectDB };
+module.exports = { connectDB };\n// Updated: 2025-05-30 16:01:23
