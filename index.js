@@ -721,18 +721,21 @@ const initializeRepo = async () => {
       console.log("🔧 Git repository initialized");
       await setupGitConfig();
 
-      // Create initial commit
-      createFiles(); // Ensure all files are created
+      // Create and commit initial files
+      createFiles();
       await git.add("./*");
-      await git.commit("Initial commit");
+      await git.commit("Initial commit", undefined, {
+        "--date": moment().subtract(1, "year").format(),
+      });
       console.log("✅ Created initial commit");
     }
 
-    // Check if remote exists
-    const remotes = await git.getRemotes(true);
-    if (remotes.length === 0) {
-      console.log("⚠️  Warning: No remote origin configured. Add one with:");
-      console.log("   git remote add origin <your-repo-url>");
+    // Check if main branch exists before trying to create it
+    const branches = await git.branchLocal();
+    if (!branches.all.includes("main")) {
+      await git.checkoutLocalBranch("main");
+    } else {
+      await git.checkout("main"); // Just switch to main if it exists
     }
 
     return true;
@@ -750,12 +753,6 @@ const makeCommits = async ({
   dryRun = false,
 }) => {
   console.log("🚀 Starting commit generation...");
-  console.log(`📊 Configuration:
-  - Years: ${years}
-  - Max commits per month: ${maxCommitsPerMonth}
-  - Min commits per month: ${minCommitsPerMonth}
-  - Skip weekends: ${skipWeekends}
-  - Dry run: ${dryRun}`);
 
   if (!dryRun) {
     const repoReady = await initializeRepo();
@@ -763,102 +760,77 @@ const makeCommits = async ({
   }
 
   const now = moment();
-  const startYear = now.year() - years;
+  const startDate = moment().subtract(years, "years");
   let totalCommits = 0;
 
-  for (let year = startYear; year <= now.year(); year++) {
-    const endMonth = year === now.year() ? now.month() : 11;
+  // Generate commits in chronological order
+  for (
+    let currentDate = moment(startDate);
+    currentDate.isBefore(now);
+    currentDate.add(1, "day")
+  ) {
+    if (skipWeekends && shouldSkipWeekend(currentDate)) continue;
 
-    // Reduce activity in older years for realism
-    const activityMultiplier = year < now.year() - 2 ? 0.6 : 1;
-    const adjustedMaxCommits = Math.ceil(
-      maxCommitsPerMonth * activityMultiplier
-    );
+    // Randomly decide if we should commit today
+    const shouldCommit = Math.random() > 0.7;
+    if (!shouldCommit) continue;
 
-    for (let month = 0; month <= endMonth; month++) {
-      const commitsThisMonth = getRandomInt(
-        minCommitsPerMonth,
-        adjustedMaxCommits
-      );
-      let monthlyCommits = 0;
+    const commitsToday = getRandomInt(1, 3);
 
-      for (
-        let attempt = 0;
-        attempt < commitsThisMonth * 3 && monthlyCommits < commitsThisMonth;
-        attempt++
-      ) {
-        const day = getRandomInt(1, 28); // Safe day range for all months
-        const hour = getRandomInt(9, 18); // Working hours
-        const minute = getRandomInt(0, 59);
+    for (let i = 0; i < commitsToday; i++) {
+      const commitDate = moment(currentDate)
+        .hour(getRandomInt(9, 17))
+        .minute(getRandomInt(0, 59))
+        .second(0);
 
-        const date = getValidDate(year, month, day)
-          .hour(hour)
-          .minute(minute)
-          .second(0);
+      if (commitDate.isAfter(now)) continue;
 
-        // Skip if date is in the future
-        if (date.isAfter(now)) continue;
+      const formattedDate = commitDate.format();
+      const commitInfo = getRandomCommitMessage();
 
-        // Skip weekends if configured to do so
-        if (shouldSkipWeekend(date, skipWeekends)) continue;
+      if (dryRun) {
+        console.log(
+          `[DRY RUN] Would commit: "${commitInfo.message}" on ${formattedDate}`
+        );
+        totalCommits++;
+        continue;
+      }
 
-        const formattedDate = date.format();
-        const commitMessage = getRandomCommitMessage();
+      try {
+        // Modify a random file
+        const targetFile =
+          projectFiles[getRandomInt(0, projectFiles.length - 1)];
+        const fileModified = makeRealisticChanges(
+          targetFile.path,
+          commitInfo.type
+        );
 
-        if (dryRun) {
-          const commitInfo = getRandomCommitMessage();
+        if (fileModified) {
+          // Track commit in data.json
+          jsonfile.writeFileSync(FILE_PATH, {
+            date: formattedDate,
+            commit: totalCommits + 1,
+            file: targetFile.path,
+            type: commitInfo.type,
+          });
+
+          await git.add("./*");
+          await git.commit(commitInfo.message, undefined, {
+            "--date": formattedDate,
+          });
+
           console.log(
-            `[DRY RUN] Would commit: "${commitInfo.message}" on ${formattedDate}`
+            `✅ [${totalCommits + 1}] ${commitInfo.message} - ${formattedDate}`
           );
-          monthlyCommits++;
           totalCommits++;
-          continue;
         }
-
-        try {
-          // Randomly select and modify a file with realistic changes
-          const targetFile =
-            projectFiles[getRandomInt(0, projectFiles.length - 1)];
-          const commitInfo = getRandomCommitMessage();
-          const fileModified = makeRealisticChanges(
-            targetFile.path,
-            commitInfo.type
-          );
-
-          if (fileModified) {
-            // Update data.json for commit tracking
-            const data = {
-              date: formattedDate,
-              commit: totalCommits + 1,
-              file: targetFile.path,
-              type: commitInfo.type,
-            };
-            jsonfile.writeFileSync(FILE_PATH, data);
-
-            await git.add("./*");
-            await git.commit(commitInfo.message, undefined, {
-              "--date": formattedDate,
-            });
-
-            console.log(
-              `✅ [${totalCommits + 1}] ${
-                commitInfo.message
-              } - ${formattedDate}`
-            );
-            monthlyCommits++;
-            totalCommits++;
-          }
-        } catch (error) {
-          console.warn(
-            `⚠️  Commit failed for ${formattedDate}:`,
-            error.message
-          );
-        }
+      } catch (error) {
+        console.warn(`⚠️ Commit failed for ${formattedDate}:`, error.message);
       }
     }
   }
 
-  console.log(`\\n🎯 Generated ${totalCommits} commits over ${years} years`);
+  console.log(`\n🎯 Generated ${totalCommits} commits over ${years} years`);
 
   if (!dryRun) {
     try {
@@ -868,13 +840,12 @@ const makeCommits = async ({
         await git.push(["-u", "origin", "main"]);
         console.log("🎉 All commits successfully pushed to GitHub!");
       } else {
-        console.log("⚠️  No remote configured. Add remote and push manually:");
+        console.log("⚠️ No remote configured. Add remote and push manually:");
         console.log("   git remote add origin <your-repo-url>");
         console.log("   git push -u origin main");
       }
     } catch (error) {
       console.error("❌ Push failed:", error.message);
-      console.log("💡 You can push manually with: git push -u origin main");
     }
   }
 };
