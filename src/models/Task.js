@@ -28,4 +28,4 @@ const taskSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Task', taskSchema);
+module.exports = mongoose.model('Task', taskSchema);\n// Updated: 2025-05-30 16:01:24
