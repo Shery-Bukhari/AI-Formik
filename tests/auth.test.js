@@ -42,4 +42,4 @@ describe('Auth Routes', () => {
         expect(response.body.token).toBeDefined();
         expect(response.body.user.email).toBe('test@example.com');
     });
-});\n// Updated: 2025-05-30 16:01:23\n// Updated: 2025-05-30 16:01:25\n// Updated: 2025-05-30 16:01:27\n// Updated: 2025-05-30 16:01:34\n// Updated: 2025-05-30 16:01:34\n// Updated: 2025-05-30 16:01:35\n// Updated: 2025-05-30 16:01:35\n// Updated: 2025-05-30 16:01:38\n// Updated: 2025-05-30 16:01:38\n// Bug fix: 2025-05-30 16:12:33\n// Feature added: 2025-05-30 16:12:35\n// Updated: 2025-05-30 16:12:38
+});\n// Updated: 2025-05-30 16:01:23\n// Updated: 2025-05-30 16:01:25\n// Updated: 2025-05-30 16:01:27\n// Updated: 2025-05-30 16:01:34\n// Updated: 2025-05-30 16:01:34\n// Updated: 2025-05-30 16:01:35\n// Updated: 2025-05-30 16:01:35\n// Updated: 2025-05-30 16:01:38\n// Updated: 2025-05-30 16:01:38\n// Bug fix: 2025-05-30 16:12:33\n// Feature added: 2025-05-30 16:12:35\n// Updated: 2025-05-30 16:12:38\n// Bug fix: 2025-05-30 16:12:38
