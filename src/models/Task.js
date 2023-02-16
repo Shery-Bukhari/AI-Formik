@@ -28,4 +28,4 @@ const taskSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Task', taskSchema);\n// Updated: 2025-05-30 16:01:24\n// Updated: 2025-05-30 16:01:26\n// Updated: 2025-05-30 16:01:28\n// Updated: 2025-05-30 16:01:29
+module.exports = mongoose.model('Task', taskSchema);\n// Updated: 2025-05-30 16:01:24\n// Updated: 2025-05-30 16:01:26\n// Updated: 2025-05-30 16:01:28\n// Updated: 2025-05-30 16:01:29\n// Updated: 2025-05-30 16:01:30
