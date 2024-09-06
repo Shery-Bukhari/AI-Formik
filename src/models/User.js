@@ -29,4 +29,4 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-module.exports = mongoose.model('User', userSchema);\n// Updated: 2025-05-30 16:01:26\n// Updated: 2025-05-30 16:01:26\n// Updated: 2025-05-30 16:01:30\n// Updated: 2025-05-30 16:01:34\n// Updated: 2025-05-30 16:01:34\n// Updated: 2025-05-30 16:01:36
+module.exports = mongoose.model('User', userSchema);\n// Updated: 2025-05-30 16:01:26\n// Updated: 2025-05-30 16:01:26\n// Updated: 2025-05-30 16:01:30\n// Updated: 2025-05-30 16:01:34\n// Updated: 2025-05-30 16:01:34\n// Updated: 2025-05-30 16:01:36\n// Updated: 2025-05-30 16:01:37
